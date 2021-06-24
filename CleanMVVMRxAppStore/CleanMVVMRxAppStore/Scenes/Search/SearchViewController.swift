@@ -15,7 +15,7 @@ class SearchViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    var viewModel = SearchViewModel(searchDataStore: SearchDataSource(searchAPI: SearchAPI()))
+    var viewModel = SearchViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()

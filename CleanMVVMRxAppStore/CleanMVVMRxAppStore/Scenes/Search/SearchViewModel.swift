@@ -24,22 +24,33 @@ class SearchViewModel: ViewModelType {
     }
     
     var disposeBag: DisposeBag = DisposeBag()
-    
-    var searchDataStore: SearchDataSourceProtocol
-    
-    init(searchDataStore: SearchDataSourceProtocol) {
-        self.searchDataStore = searchDataStore
-    }
-    
+    var searchAPI = SearchAPI()
     
     func transform(input: Input) -> Output {
         
         let resultImage = input.searchInputText.flatMap { inputText in
-            return self.searchDataStore.search(inputText: inputText ?? "" )
+            return self.search(inputText: inputText ?? "" )
         }.asDriver(onErrorJustReturn: UIImage(named: "xmark.bin"))
         
         return Output(searchResultImage: resultImage)
         
     }
+    
+    private func search(inputText: String) -> Observable<UIImage?> {
+        searchAPI.search(inputText: inputText)
+            .asObservable()
+            .map { response in
+                if response.results.count > 0 {
+                    if let imageURL = response.results[0].artworkUrl100 {
+                        let data = try Data(contentsOf: imageURL)
+                        
+                        return UIImage(data: data)
+                    }
+                }
+                return nil
+            }
+    }
 }
+
+
 
