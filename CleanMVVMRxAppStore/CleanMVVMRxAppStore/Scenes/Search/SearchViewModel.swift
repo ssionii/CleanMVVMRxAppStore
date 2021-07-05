@@ -16,11 +16,12 @@ protocol ViewModelType {
 class SearchViewModel: ViewModelType {
     
     struct Input {
+        var searchButtonClicked: Observable<Void>
         var searchInputText: Observable<String?>
     }
     
     struct Output {
-        var searchResultImage: Driver<UIImage?>
+        var searchResults: Driver<[AppInfo]>
     }
     
     var disposeBag: DisposeBag = DisposeBag()
@@ -28,26 +29,36 @@ class SearchViewModel: ViewModelType {
     
     func transform(input: Input) -> Output {
         
-        let resultImage = input.searchInputText.flatMap { inputText in
-            return self.search(inputText: inputText ?? "" )
-        }.asDriver(onErrorJustReturn: UIImage(named: "xmark.bin"))
+        let results = input.searchButtonClicked
+            .withLatestFrom(input.searchInputText)
+            .flatMap { inputText in
+                return self.search(inputText: inputText ?? "" )
+                
+        }.asDriver(onErrorJustReturn: [])
         
-        return Output(searchResultImage: resultImage)
-        
+        return Output(searchResults: results)
     }
     
-    private func search(inputText: String) -> Observable<UIImage?> {
+    func search(inputText: String) -> Observable<[AppInfo]> {
+        
         searchAPI.search(inputText: inputText)
             .asObservable()
             .map { response in
-                if response.results.count > 0 {
-                    if let imageURL = response.results[0].artworkUrl100 {
-                        let data = try Data(contentsOf: imageURL)
-                        
-                        return UIImage(data: data)
+                
+                let results = response.results
+                var tempResults = [AppInfo]()
+                
+                var index = 0
+                for app in results {
+                    tempResults.append(app)
+                    
+                    index += 1
+                    if index == 10 {
+                        break
                     }
                 }
-                return nil
+                
+                return tempResults
             }
     }
 }

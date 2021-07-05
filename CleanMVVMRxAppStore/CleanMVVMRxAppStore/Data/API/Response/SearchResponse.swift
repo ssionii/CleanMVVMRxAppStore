@@ -8,9 +8,5 @@
 import Foundation
 
 struct SearchResponse: Codable {
-    let results: [SearchResult]
-    
-    struct SearchResult: Codable {
-        let artworkUrl100: URL?
-    }
+    let results: [AppInfo]
 }

@@ -25,11 +25,11 @@ class SearchDataSource: SearchDataSourceProtocol {
             .map { (response: SearchResponse) in
                 
                 if response.results.count > 0 {
-                    if let imageUrl = response.results[0].artworkUrl100 {
-                        let data = try Data(contentsOf: imageUrl)
+                    let imageUrl = response.results[0].logo
+                    let data = try Data(contentsOf: imageUrl)
                         
-                        return UIImage(data: data)
-                    }
+                    return UIImage(data: data)
+                    
                 }
                 return nil
             }
