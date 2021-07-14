@@ -27,6 +27,8 @@ class SearchViewModel: ViewModelType {
     var disposeBag: DisposeBag = DisposeBag()
     var searchAPI = SearchAPI()
     
+    var searchUseCase = SearchUseCase()
+    
     func transform(input: Input) -> Output {
         
         let results = input.searchButtonClicked
@@ -40,26 +42,13 @@ class SearchViewModel: ViewModelType {
     }
     
     func search(inputText: String) -> Observable<[AppInfo]> {
-        
-        searchAPI.search(inputText: inputText)
-            .asObservable()
-            .map { response in
-                
-                let results = response.results
-                var tempResults = [AppInfo]()
-                
-                var index = 0
-                for app in results {
-                    tempResults.append(app)
-                    
-                    index += 1
-                    if index == 10 {
-                        break
-                    }
-                }
-                
-                return tempResults
-            }
+        searchUseCase.execute(
+            request: SearchUseCaseModels.Request(inputText: inputText, limits: 20)
+        ).asObservable()
+        .map { appInfos in
+            
+        }
+    
     }
 }
 

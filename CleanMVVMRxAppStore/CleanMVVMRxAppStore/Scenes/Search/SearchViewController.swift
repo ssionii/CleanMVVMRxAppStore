@@ -22,7 +22,6 @@ class SearchViewController: UIViewController {
         configureUI()
         configureKeypad()
         bindViewModel()
-        
     }
     
     private func configureUI() {
@@ -34,7 +33,6 @@ class SearchViewController: UIViewController {
         searchBar?.setImage(UIImage(named: ""), for: .clear, state: .normal)
         
         self.navigationController?.navigationBar.topItem?.titleView = searchBar
-        
         
         // register cell
         self.searchResultTableView.register(UINib(nibName: "SearchResultCell", bundle: nil), forCellReuseIdentifier: SearchResultCell.ID)
@@ -49,11 +47,12 @@ class SearchViewController: UIViewController {
                 searchInputText: searchBar.rx.text.asObservable()
             )
         )
-        output.searchResults
-            .drive(searchResultTableView.rx.items(cellIdentifier: SearchResultCell.ID, cellType: SearchResultCell.self)) { index, element, cell in
-                cell.bind(appInfo: element)
-            }
-            .disposed(by: disposeBag)
+//        output.searchResults
+//            .drive(searchResultTableView.rx.items(cellIdentifier: SearchResultCell.ID, cellType: SearchResultCell.self)) { index, element, cell in
+//                cell.bind(appInfo: element)
+//            }
+//            .disposed(by: disposeBag)
+        
     }
     
     private func configureKeypad() {
@@ -64,4 +63,3 @@ class SearchViewController: UIViewController {
             .disposed(by: disposeBag)
     }
 }
-
