@@ -17,38 +17,42 @@ class SearchViewModel: ViewModelType {
     
     struct Input {
         var searchInputText: Observable<String?>
+        var searchButtonClicked: Observable<Void>
     }
     
     struct Output {
-        var searchResultImage: Driver<UIImage?>
+        var searchResults: Observable<[SearchResult]>
+    }
+    
+    private let searchUseCase: SearchUseCaseProtocol
+    
+    // FIXME: 일단 DI는 신경쓰지 말고 이렇게 해놓자.
+    init() {
+        self.searchUseCase = SearchUseCase()
     }
     
     var disposeBag: DisposeBag = DisposeBag()
-    var searchAPI = SearchAPI()
     
     func transform(input: Input) -> Output {
         
-        let resultImage = input.searchInputText.flatMap { inputText in
-            return self.search(inputText: inputText ?? "" )
-        }.asDriver(onErrorJustReturn: UIImage(named: "xmark.bin"))
-        
-        return Output(searchResultImage: resultImage)
-        
-    }
-    
-    private func search(inputText: String) -> Observable<UIImage?> {
-        searchAPI.search(inputText: inputText)
-            .asObservable()
-            .map { response in
-                if response.results.count > 0 {
-                    if let imageURL = response.results[0].artworkUrl100 {
-                        let data = try Data(contentsOf: imageURL)
-                        
-                        return UIImage(data: data)
-                    }
-                }
-                return nil
+        let results = input.searchInputText
+            .flatMap { inputText in
+                
             }
+        
+        
+        let results = input.searchButtonClicked
+            .map {
+                self.searchUseCase.execute(
+                    request: SearchUseCaseRequest(inputText: input.searchInputText))
+            }
+            
+            .flatMap { _ in
+            return self.searchUseCase.execute(
+                request: SearchUseCaseRequest(inputText: input.searchInputText ?? ""))
+        }
+
+        return Output(searchResults: results)
     }
 }
 

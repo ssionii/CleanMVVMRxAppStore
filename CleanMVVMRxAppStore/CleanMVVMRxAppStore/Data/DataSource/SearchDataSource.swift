@@ -9,29 +9,21 @@ import Foundation
 import RxSwift
 
 protocol SearchDataSourceProtocol {
-    func search(inputText: String) -> Observable<UIImage?>
+    func search(inputText: String) -> Observable<SearchResponse>
 }
 
 class SearchDataSource: SearchDataSourceProtocol {
-    var searchAPI: SearchAPIProtocol
+    private var searchAPI: SearchAPIProtocol
     
-    init(searchAPI: SearchAPIProtocol) {
-        self.searchAPI = searchAPI
+    init() {
+        self.searchAPI = SearchAPI()
     }
     
-    func search(inputText: String) -> Observable<UIImage?> {
+    func search(inputText: String) -> Observable<SearchResponse> {
         return searchAPI.search(inputText: inputText)
             .asObservable()
-            .map { (response: SearchResponse) in
-                
-                if response.results.count > 0 {
-                    if let imageUrl = response.results[0].artworkUrl100 {
-                        let data = try Data(contentsOf: imageUrl)
-                        
-                        return UIImage(data: data)
-                    }
-                }
-                return nil
+            .map { response in
+                return response
             }
     }
 }
