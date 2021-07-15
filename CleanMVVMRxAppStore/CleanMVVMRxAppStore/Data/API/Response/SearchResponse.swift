@@ -8,6 +8,10 @@
 import Foundation
 
 struct SearchResponse: Codable {
+<<<<<<< HEAD
     let resultCount: Int
     let results: [SearchResult]
+=======
+    let results: [AppInfo]
+>>>>>>> 79a382b113736718896704e93404b72138cd0654
 }

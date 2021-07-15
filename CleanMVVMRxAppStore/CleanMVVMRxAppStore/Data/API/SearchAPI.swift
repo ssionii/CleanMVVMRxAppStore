@@ -9,12 +9,12 @@ import Foundation
 import RxSwift
 
 protocol SearchAPIProtocol {
-    func search(inputText: String) -> Single<SearchResponse>
+    func search(inputText: String, limits: String) -> Single<SearchResponse>
 }
 
 class SearchAPI: API, SearchAPIProtocol {
     
-    func search(inputText: String) -> Single<SearchResponse> {
+    func search(inputText: String, limits: String) -> Single<SearchResponse> {
         
         urlRequest(
             path: "/search",
@@ -23,7 +23,8 @@ class SearchAPI: API, SearchAPIProtocol {
                 "term" : inputText,
                 "country" : "KR",
                 "media" : "software",
-                "entity" : "software"
+                "entity" : "software",
+                "limits" : limits
             ],
             body: nil
         ).flatMap { urlRequest in
