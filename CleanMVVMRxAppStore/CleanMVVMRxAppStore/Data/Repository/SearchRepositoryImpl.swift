@@ -13,7 +13,7 @@ class SearchRepository: SearchRepositoryProtocol {
     let searchDataSource: SearchDataSourceProtocol = SearchDataSource()
     
     func search(request: SearchUseCaseModels.Request) -> Observable<SearchUseCaseModels.Response> {
-        searchDataSource.search(inputText: request.inputText, limits: String(request.limits))
+        searchDataSource.search(inputText: request.inputText, limit: String(request.limit))
             .asObservable()
             .map { appInfos in
                 return SearchUseCaseModels.Response(appInfos: appInfos)

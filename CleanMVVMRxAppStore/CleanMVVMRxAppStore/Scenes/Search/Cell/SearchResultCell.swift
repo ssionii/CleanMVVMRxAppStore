@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class SearchResultCell: UITableViewCell {
     
@@ -16,63 +18,103 @@ class SearchResultCell: UITableViewCell {
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var previewStackView: UIStackView!
     
+    @IBOutlet weak var previewImageView1: UIImageView!
+    @IBOutlet weak var previewImageView2: UIImageView!
+    @IBOutlet weak var previewImageView3: UIImageView!
+    
+    
+    private var viewModel = SearchResultViewModel()
+    private var disposeBag = DisposeBag()
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        configureUI()
     }
-
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        for preview in self.previewStackView.arrangedSubviews {
-            preview.removeFromSuperview()
-        }
+        disposeBag = DisposeBag()
+        
+        preparePreviewForReuse(imageView: previewImageView1)
+        preparePreviewForReuse(imageView: previewImageView2)
+        preparePreviewForReuse(imageView: previewImageView3)
+        
     }
     
     func bind(appInfo: AppInfo){
+
+        let output = viewModel.transform(input: SearchResultViewModel.Input(appInfo: appInfo))
         
-        do {
-            let data = try Data(contentsOf: appInfo.logo)
-            iconImageView.image = UIImage(data: data)
-            iconImageView.layer.cornerRadius = 10.0
-        } catch {
-            print("image logo 못 불러옴")
-        }
+        output.name
+            .drive(titleLabel.rx.text)
+            .disposed(by: disposeBag)
         
-        titleLabel.text = appInfo.name
+        output.categories
+            .drive(categoryLabel.rx.text)
+            .disposed(by: disposeBag)
         
-        categoryLabel.text = ""
-        for category in appInfo.categories {
-            categoryLabel.text?.append("\(category) ")
-        }
+        output.logoImage
+            .drive(iconImageView.rx.image)
+            .disposed(by: disposeBag)
         
-        for preview in appInfo.previewUrls {
-            do {
-                let data = try Data(contentsOf: preview)
-                let imageView = UIImageView(image: UIImage(data:data))
-                imageView.layer.cornerRadius = 10
-                imageView.layer.borderWidth = 0.5
-                imageView.layer.borderColor = UIColor.lightGray.cgColor
-                imageView.clipsToBounds = true
+        output.previewImage1
+            .subscribe(onNext: { [weak self] image in
+                guard let self = self else { return }
+                self.previewImageView1.image = image
+            })
+            .disposed(by: disposeBag)
+        
+        output.previewImage2?
+            .subscribe(onNext: { [weak self] image in
+                guard let self = self else { return }
                 
-                previewStackView.addArrangedSubview(imageView)
-                
-                if previewStackView.arrangedSubviews.count == 3 {
-                    break
+                if image.size.width > image.size.height {
+                    self.previewImageView2.isHidden = true
+                    return
                 }
                 
-                if imageView.frame.width > imageView.frame.height {
-                    
-                    // TODO: 크기 조절
-                    break
+                self.previewImageView2.image = image
+                
+                
+            })
+            .disposed(by: disposeBag)
+        
+        output.previewImage3?
+            .subscribe(onNext: { [weak self] image in
+                guard let self = self else { return }
+                
+                if image.size.width > image.size.height {
+                    self.previewImageView3.isHidden = true
+                    return
                 }
                 
-                
-            } catch {
-                print("preview 못 불러옴")
-            }
-        }
+                self.previewImageView3.image = image
+            })
+            .disposed(by: disposeBag)
+        
+        
     }
     
+    private func configureUI() {
+        iconImageView.layer.cornerRadius = 10.0
+        
+        configurePreview(imageView: previewImageView1)
+        configurePreview(imageView: previewImageView2)
+        configurePreview(imageView: previewImageView3)
+    }
+    
+    private func configurePreview(imageView: UIImageView) {
+        imageView.layer.cornerRadius = 10
+        imageView.layer.borderWidth = 0.5
+        imageView.layer.borderColor = UIColor.systemGray4.cgColor
+        imageView.layer.masksToBounds = true
+        imageView.clipsToBounds = true
+    }
+    
+    private func preparePreviewForReuse(imageView: UIImageView) {
+        imageView.isHidden = false
+        imageView.image = nil
+    }
 }

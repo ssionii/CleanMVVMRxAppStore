@@ -2,8 +2,10 @@
 //  SearchUseCase.swift
 //  CleanMVVMRxAppStore
 //
-//  Created by  60117280 on 2021/06/24.
+//  Created by  60117280 on 2021/07/15.
 //
+
+import Foundation
 
 import Foundation
 import RxSwift
@@ -15,7 +17,7 @@ protocol SearchUseCaseProtocol {
 enum SearchUseCaseModels {
     struct Request {
         var inputText: String
-        var limits: Int
+        var limit: Int
     }
     
     struct Response {
